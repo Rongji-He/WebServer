@@ -3,17 +3,24 @@ package http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpRequest {
     private String method;
     private String uri;
     private String protocol;
 
+
+
     private Socket socket;
     private InputStream is;
 
+    private Map<String, String> headers;
+
     public HttpRequest(Socket socket) {
         this.socket = socket;
+        headers = new HashMap<>();
         try {
             this.is = socket.getInputStream();
         } catch (IOException e) {
@@ -43,7 +50,7 @@ public class HttpRequest {
             uri = data[1];
             protocol = data[2];
 
-            
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,7 +60,22 @@ public class HttpRequest {
     }
 
     public void parseHeaders(){
+        System.out.println("Parsing headers....");
 
+        try {
+            while(true){
+                String line = readLine();
+                if(line.equals("")){
+                    break;
+                }
+                String [] data = line.split(":\\s");
+                headers.put(data[0],data[1]);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Header parsing completed.");
     }
 
     public void parseContent(){
@@ -78,5 +100,23 @@ public class HttpRequest {
 
         return sb.toString().trim();
     }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public String getHeader(String key){
+        return headers.get(key);
+    }
+
+
 
 }
