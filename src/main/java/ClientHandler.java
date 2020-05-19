@@ -1,4 +1,5 @@
 import http.HttpRequest;
+import http.HttpResponse;
 
 import java.io.*;
 import java.net.Socket;
@@ -33,59 +34,18 @@ public class ClientHandler implements Runnable{
 
             HttpRequest req = new HttpRequest(socket);
             File file = new File("./webapps"+req.getUri());
+            HttpResponse resp = new HttpResponse(socket);
             if(file.exists()){
                 //System.out.println("got it!");
-                OutputStream os = socket.getOutputStream();
-
-                os.write("HTTP/1.1 200 OK".getBytes(StandardCharsets.ISO_8859_1));
-                os.write(13);
-                os.write(10);
-
-                os.write("Content-Type: text/html".getBytes(StandardCharsets.ISO_8859_1));
-                os.write(13);
-                os.write(10);
-
-                os.write(("Content-Length: "+file.length()).getBytes(StandardCharsets.ISO_8859_1));
-                os.write(13);
-                os.write(10);
-
-                //empty line
-                os.write(13);
-                os.write(10);
-
-                FileInputStream fis = new FileInputStream(file);
-                byte [] data = new byte[1024*10];
-                int len =-1;
-
-                while((len = fis.read(data))!=-1){
-                    os.write(data, 0, len);
-                }
+                resp.setEntity(file);
             }else{
-               File notFound = new File("./webapps/root/404.html");
-               OutputStream os = socket.getOutputStream();
-                os.write("HTTP/1.1 404 Not Found".getBytes(StandardCharsets.ISO_8859_1));
-                os.write(13);
-                os.write(10);
-
-                os.write("Content-Type: text/html".getBytes(StandardCharsets.ISO_8859_1));
-                os.write(13);
-                os.write(10);
-
-                os.write(("Content-Length: "+notFound.length()).getBytes(StandardCharsets.ISO_8859_1));
-                os.write(13);
-                os.write(10);
-
-                os.write(13);
-                os.write(10);
-
-                FileInputStream fis = new FileInputStream(notFound);
-                byte [] data = new byte[1024*10];
-                int len =-1;
-
-                while((len = fis.read(data))!=-1){
-                    os.write(data, 0, len);
-                }
+               //File notFound = new File("./webapps/root/404.html");
+               resp.setEntity(new File("./webapps/root/404.html"));
+               resp.setStatusCode(404);
+               resp.setStatusReason("Not Found");
             }
+
+            resp.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
