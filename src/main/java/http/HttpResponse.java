@@ -3,6 +3,8 @@ package http;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpResponse {
 
@@ -13,36 +15,61 @@ public class HttpResponse {
     private OutputStream os;
     private Socket socket;
 
+    private Map<String,String> headers;
+
     public HttpResponse(Socket socket){
 
         try {
             this.socket= socket;
             this.os = socket.getOutputStream();
+            headers = new HashMap<>();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void flush(){
-        String line = "Http/1.1 " + statusCode + " " + statusReason;
+
+        sendStatusLine();
+        sendHeaders();
+        sendContent();
+
+    }
+
+    public void sendStatusLine(){
+
         try {
-            os.write("HTTP/1.1 200 OK".getBytes(StandardCharsets.ISO_8859_1));
+            os.write(("HTTP/1.1 "+statusCode + statusReason).getBytes(StandardCharsets.ISO_8859_1));
             os.write(13);
             os.write(10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            os.write("Content-Type: text/html".getBytes(StandardCharsets.ISO_8859_1));
+
+
+    }
+
+    public void sendHeaders(){
+
+        try {
+            for(Map.Entry<String, String> e :headers.entrySet()){
+                String key = e.getKey();
+                String value = e.getValue();
+                String line = key + ": " + value;
+                os.write(line.getBytes(StandardCharsets.ISO_8859_1));
+                os.write(13);
+                os.write(10);
+            }
             os.write(13);
             os.write(10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void sendContent(){
+        try(FileInputStream fis = new FileInputStream(entity);){
 
-            os.write(("Content-Length: "+entity.length()).getBytes(StandardCharsets.ISO_8859_1));
-            os.write(13);
-            os.write(10);
-
-            //empty line
-            os.write(13);
-            os.write(10);
-
-            FileInputStream fis = new FileInputStream(entity);
             byte [] data = new byte[1024*10];
             int len =-1;
 
@@ -50,12 +77,9 @@ public class HttpResponse {
                 os.write(data, 0, len);
             }
 
-        } catch (IOException e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
-
-
-
     }
 
 
@@ -81,6 +105,10 @@ public class HttpResponse {
 
     public void setEntity(File entity) {
         this.entity = entity;
+    }
+
+    public void putHeader(String key, String value){
+        headers.put(key, value);
     }
 
 }

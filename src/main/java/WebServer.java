@@ -19,12 +19,16 @@ public class WebServer {
     public void start(){
         System.out.println();
         try {
-            System.out.println("Server is listening...");
-            Socket socket = server.accept();
-            System.out.println("One client has connected!");
-            ClientHandler ch = new ClientHandler(socket);
-            Thread thread = new Thread(ch);
-            thread.start();
+
+            while(true){
+                System.out.println("Server is listening...");
+                Socket socket = server.accept();
+                System.out.println("One client has connected!");
+                ClientHandler ch = new ClientHandler(socket);
+                Thread thread = new Thread(ch);
+                thread.start();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

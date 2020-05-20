@@ -4,6 +4,8 @@ import http.HttpResponse;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientHandler implements Runnable{
 
@@ -30,24 +32,44 @@ public class ClientHandler implements Runnable{
      */
 
     public void run() {
-        try {
+        try{
 
             HttpRequest req = new HttpRequest(socket);
             File file = new File("./webapps"+req.getUri());
             HttpResponse resp = new HttpResponse(socket);
             if(file.exists()){
-                //System.out.println("got it!");
                 resp.setEntity(file);
+                String fileName = file.getName();
+                int index = fileName.lastIndexOf(".");
+                String extension = fileName.substring(index+1);
+                Map<String, String> map = new HashMap<>();
+                map.put("html", "text/html");
+                map.put("png", "image/html");
+                map.put("jpg", "image/html");
+                map.put("gif", "image/html");
+                map.put("css", "text/html");
+
+                String mime = map.get(extension);
+                resp.putHeader("Content-Type", mime);
+                resp.putHeader("Content-Length", file.length()+"");
             }else{
-               //File notFound = new File("./webapps/root/404.html");
+               File notFound = new File("./webapps/root/404.html");
                resp.setEntity(new File("./webapps/root/404.html"));
                resp.setStatusCode(404);
                resp.setStatusReason("Not Found");
+               resp.putHeader("Content-Type", "text/html");
+               resp.putHeader("Content-Length", notFound.length()+"");
             }
 
             resp.flush();
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
