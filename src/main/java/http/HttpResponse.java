@@ -104,7 +104,15 @@ public class HttpResponse {
     }
 
     public void setEntity(File entity) {
+
         this.entity = entity;
+        String fname = entity.getName();
+        int index = fname.lastIndexOf(".");
+        String ext = fname.substring(index+1);
+        String mime = HttpContext.getMimeType(ext);
+
+        putHeader("Content-Type", mime);
+        putHeader("Content-Length", entity.length()+"");
     }
 
     public void putHeader(String key, String value){

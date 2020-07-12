@@ -18,7 +18,7 @@ public class HttpRequest {
 
     private Map<String, String> headers;
 
-    public HttpRequest(Socket socket) {
+    public HttpRequest(Socket socket) throws EmptyRequestException {
         this.socket = socket;
         headers = new HashMap<>();
         try {
@@ -38,13 +38,17 @@ public class HttpRequest {
     }
 
 
-    public void parseRequestLine(){
+    public void parseRequestLine() throws EmptyRequestException {
 
         System.out.println("Parsing request line....");
 
         try {
             String line = readLine();
             System.out.println(line);
+            if("".equals(line)){
+                throw new EmptyRequestException();
+            }
+
             String [] data = line.split("\\s");
             method = data[0];
             uri = data[1];
