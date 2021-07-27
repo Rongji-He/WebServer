@@ -11,7 +11,9 @@ public class HttpRequest {
     private String uri;
     private String protocol;
 
-
+    private String requestURI;
+    private String queryString;
+    private Map<String, String> parameters;
 
     private Socket socket;
     private InputStream is;
@@ -21,6 +23,7 @@ public class HttpRequest {
     public HttpRequest(Socket socket) throws EmptyRequestException {
         this.socket = socket;
         headers = new HashMap<>();
+        parameters = new HashMap<>();
         try {
             this.is = socket.getInputStream();
         } catch (IOException e) {
@@ -44,7 +47,7 @@ public class HttpRequest {
 
         try {
             String line = readLine();
-            System.out.println(line);
+            //System.out.println(line);
             if("".equals(line)){
                 throw new EmptyRequestException();
             }
@@ -52,11 +55,14 @@ public class HttpRequest {
             String [] data = line.split("\\s");
             method = data[0];
             uri = data[1];
+            parseURI();
             protocol = data[2];
 
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch(EmptyRequestException e){
+            throw e;
         }
 
 
@@ -82,11 +88,33 @@ public class HttpRequest {
         System.out.println("Header parsing completed.");
     }
 
-    public void parseContent(){
+    /*
+    * handling reg service
+    * */
+    public void parseURI(){
+        if(uri.contains("?")){
+            String []data = uri.split("\\?");
+            requestURI= data[0];
+            if(data.length> 1){
+                queryString= data[1];
+                String []info= queryString.split("&");
+                for(String s: info){
+                    String [] arr= s.split("=");
+                    if(arr.length> 1){
+                        parameters.put(arr[0], arr[1]);
+                    }else{
+                        parameters.put(arr[0], null);
+                    }
 
+                }
+
+            }
+        }else{
+            requestURI= uri;
+        }
     }
 
-
+    public void parseContent(){}
 
     private String readLine() throws IOException {
 
@@ -121,6 +149,16 @@ public class HttpRequest {
         return headers.get(key);
     }
 
+    public String getRequestURI() {
+        return requestURI;
+    }
 
+    public String getQueryString() {
+        return queryString;
+    }
+
+    public String getParameter(String key){
+        return parameters.get(key);
+    }
 
 }

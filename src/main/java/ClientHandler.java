@@ -1,3 +1,4 @@
+import http.EmptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
 
@@ -48,9 +49,13 @@ public class ClientHandler implements Runnable{
             }
 
             resp.flush();
+        }catch (EmptyRequestException e){
+            System.out.println("Server received an empty request!");
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        }
+
+        finally {
             try {
                 socket.close();
             } catch (IOException e) {

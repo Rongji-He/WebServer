@@ -8,7 +8,7 @@ public class WebServer {
     public WebServer(){
         try {
             System.out.println("Initializing server...");
-            server = new ServerSocket(7007);
+            server = new ServerSocket(8008);
             System.out.println("Server initialization complete...");
         } catch (IOException e) {
             e.printStackTrace();
