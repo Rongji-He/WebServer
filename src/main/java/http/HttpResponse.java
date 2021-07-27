@@ -76,7 +76,7 @@ public class HttpResponse {
             while((len = fis.read(data))!=-1){
                 os.write(data, 0, len);
             }
- 
+
         }catch (Exception e){
             e.printStackTrace();
         }
