@@ -1,5 +1,7 @@
 package core;
 
+import Servlet.ChangePwdServlet;
+import Servlet.LoginServlet;
 import Servlet.RegServlet;
 import http.EmptyRequestException;
 import http.HttpRequest;
@@ -44,7 +46,14 @@ public class ClientHandler implements Runnable{
             if("/myweb/reg".equals(path)){
                 RegServlet rs = new RegServlet();
                 rs.service(req,resp);
-            }else{
+            }else if("/myweb/login".equals(path)){
+                LoginServlet ls = new LoginServlet();
+                ls.service(req,resp);
+            }else if("/myweb/change".equals(path)){
+                ChangePwdServlet cpl = new ChangePwdServlet();
+                cpl.service(req,resp);
+            }
+            else{
                 File file = new File("./webapps"+path);
 
                 if(file.exists()){

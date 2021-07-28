@@ -5,22 +5,56 @@ package Servlet;
 *
 * A servlet-ish class handling registration service
 *
-*
-* */
+*/
 
 import http.HttpRequest;
 import http.HttpResponse;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class RegServlet {
     public void service(HttpRequest req, HttpResponse resp){
         String username= req.getParameter("username");
         String password= req.getParameter("password");
         String nickname= req.getParameter("nickname");
-       //System.out.println(req.getParameter("age"));
         int age= Integer.parseInt(req.getParameter("age"));
 
-        resp.setEntity(new File("./webapps/myweb/reg_success.html"));
+        try(RandomAccessFile raf= new RandomAccessFile("user.dat", "rw");){
+            //each user record is set to 100 byte, i.e. i=i+100
+            for(int i= 0; i<raf.length(); i=i+100){
+                raf.seek(i);
+                byte [] data = new byte[32];
+                raf.read(data);
+                String name= new String(data, StandardCharsets.UTF_8).trim();
+                if(name.equals(username)){
+                    resp.setEntity(new File("./webapps/myweb/reg_fail_username_existed.html"));
+                    return;
+                }
+            }
+            raf.seek(raf.length());
+            byte[] data =username.getBytes(StandardCharsets.UTF_8);
+            data= Arrays.copyOf(data,32);
+            raf.write(data);
+
+            data =password.getBytes(StandardCharsets.UTF_8);
+            data= Arrays.copyOf(data,32);
+            raf.write(data);
+
+            data =nickname.getBytes(StandardCharsets.UTF_8);
+            data= Arrays.copyOf(data,32);
+            raf.write(data);
+
+            raf.writeInt(age);
+
+            resp.setEntity(new File("./webapps/myweb/reg_success.html"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
