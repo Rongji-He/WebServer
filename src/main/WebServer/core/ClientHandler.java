@@ -1,3 +1,6 @@
+package core;
+
+import Servlet.RegServlet;
 import http.EmptyRequestException;
 import http.HttpRequest;
 import http.HttpResponse;
@@ -36,18 +39,24 @@ public class ClientHandler implements Runnable{
         try{
 
             HttpRequest req = new HttpRequest(socket);
-            File file = new File("./webapps"+req.getUri());
+            String path = req.getRequestURI();
             HttpResponse resp = new HttpResponse(socket);
-            if(file.exists()){
-                resp.setEntity(file);
+            if("/myweb/reg".equals(path)){
+                RegServlet rs = new RegServlet();
+                rs.service(req,resp);
             }else{
-               //File notFound = new File("./webapps/root/404.html");
-               resp.setEntity(new File("./webapps/root/404.html"));
-               resp.setStatusCode(404);
-               resp.setStatusReason("Not Found");
+                File file = new File("./webapps"+path);
 
+                if(file.exists()){
+                    resp.setEntity(file);
+                }else{
+                    //File notFound = new File("./webapps/root/404.html");
+                    resp.setEntity(new File("./webapps/root/404.html"));
+                    resp.setStatusCode(404);
+                    resp.setStatusReason("Not Found");
+
+                }
             }
-
             resp.flush();
         }catch (EmptyRequestException e){
             System.out.println("Server received an empty request!");
