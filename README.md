@@ -1,3 +1,3 @@
-# A java server-client web application.
-# More to be added..
+# A java server-client web application with a focus on backend(server).
+## More to be added..
  
