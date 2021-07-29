@@ -17,7 +17,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class RegServlet {
+public class RegServlet extends HttpServlet{
     public void service(HttpRequest req, HttpResponse resp){
         String username= req.getParameter("username");
         String password= req.getParameter("password");
@@ -32,7 +32,7 @@ public class RegServlet {
                 raf.read(data);
                 String name= new String(data, StandardCharsets.UTF_8).trim();
                 if(name.equals(username)){
-                    resp.setEntity(new File("./webapps/myweb/reg_fail_username_existed.html"));
+                    forward("/myweb/reg_fail_username_existed.html",req, resp);
                     return;
                 }
             }
@@ -50,8 +50,8 @@ public class RegServlet {
             raf.write(data);
 
             raf.writeInt(age);
+            forward("/myweb/reg_success.html",req, resp);
 
-            resp.setEntity(new File("./webapps/myweb/reg_success.html"));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 * Login service
 *
 */
-public class LoginServlet {
+public class LoginServlet extends HttpServlet{
     public void service(HttpRequest req, HttpResponse resp){
         String username= req.getParameter("username");
         String password= req.getParameter("password");
@@ -30,14 +30,14 @@ public class LoginServlet {
                     raf.read(data);
                     String pwd= new String(data,StandardCharsets.UTF_8).trim();
                     if(pwd.equals(password)){
-                        resp.setEntity(new File("./webapps/myweb/login_success.html"));
+                        forward("/myweb/login_success.html",req, resp);
                         return;
                     }
                     break;
                 }
             }
+            forward("/myweb/login_fail.html",req, resp);
 
-            resp.setEntity(new File("./webapps/myweb/login_fail.html"));
         } catch (IOException e) {
             e.printStackTrace();
         }

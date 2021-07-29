@@ -10,7 +10,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class ChangePwdServlet {
+public class ChangePwdServlet extends HttpServlet{
 
     public void service(HttpRequest req, HttpResponse resp) {
         String username = req.getParameter("username");
@@ -33,15 +33,14 @@ public class ChangePwdServlet {
                         data= newPwd.getBytes(StandardCharsets.UTF_8);
                         data= Arrays.copyOf(data,32);
                         raf.write(data);
-                        resp.setEntity(new File("./webapps/myweb/change_success.html"));
+                        forward("/myweb/change_success.html",req, resp);
                         return;
                     }else{
                         break;
                     }
                 }
             }
-
-            resp.setEntity(new File("./webapps/myweb/change_fail.html"));
+            forward("/myweb/change_fail.html",req, resp);
 
         } catch (IOException e) {
             e.printStackTrace();
