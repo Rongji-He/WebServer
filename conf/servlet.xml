@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding= "UTF-8"?>
+<servlets>
+
+    <servlet path="/myweb/reg" className="Servlet.RegServlet"/>
+    <servlet path="/myweb/login" className="Servlet.LoginServlet"/>
+    <servlet path="/myweb/change" className="Servlet.ChangePwdServlet"/>
+
+
+
+
+    <!--
+    <servlet>
+        <path>/myweb/reg</path>
+        <className>WebServer.Servlet.RegServlet</className>
+    </servlet>
+    -->
+</servlets>
